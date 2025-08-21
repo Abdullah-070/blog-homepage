@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Blog Homepage</title>
+    <link rel="stylesheet" href="blog-styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1 class="blog-title">TechLife Blog</h1>
+            <p class="blog-tagline">Exploring technology, travel, and culinary adventures</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Search and Filters -->
+            <div class="controls">
+                <div class="search-container">
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        class="search-input" 
+                        placeholder="Search posts by title..."
+                    >
+                    <span class="search-icon">🔍</span>
+                </div>
+                
+                <div class="category-filters">
+                    <button class="filter-btn active" data-category="all">All Posts</button>
+                    <button class="filter-btn" data-category="tech">Tech</button>
+                    <button class="filter-btn" data-category="travel">Travel</button>
+                    <button class="filter-btn" data-category="food">Food</button>
+                </div>
+            </div>
+
+            <!-- Posts Grid -->
+            <div class="posts-grid" id="postsGrid">
+                <!-- Posts will be dynamically generated -->
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination">
+                <button class="pagination-btn" id="prevBtn">← Previous</button>
+                <div class="page-numbers" id="pageNumbers"></div>
+                <button class="pagination-btn" id="nextBtn">Next →</button>
+            </div>
+
+            <!-- No Results Message -->
+            <div class="no-results" id="noResults">
+                <div class="no-results-icon">📝</div>
+                <h3>No posts found</h3>
+                <p>Try adjusting your search or filter criteria.</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Sample blog post data
+        const blogPosts = [
+            {
+                id: 1,
+                title: "Getting Started with React Hooks",
+                category: "tech",
+                image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=250&fit=crop",
+                description: "A comprehensive guide to understanding and implementing React Hooks in your applications for better state management.",
+                date: "2024-03-15",
+                readTime: "8 min read"
+            },
+            {
+                id: 2,
+                title: "Hidden Gems of Tokyo",
+                category: "travel",
+                image: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=400&h=250&fit=crop",
+                description: "Discover the lesser-known attractions and local favorites that make Tokyo a truly magical destination for travelers.",
+                date: "2024-03-12",
+                readTime: "6 min read"
+            },
+            {
+                id: 3,
+                title: "Perfect Italian Pasta Recipes",
+                category: "food",
+                image: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=400&h=250&fit=crop",
+                description: "Master the art of Italian cooking with these authentic pasta recipes passed down through generations.",
+                date: "2024-03-10",
+                readTime: "12 min read"
+            },
+            {
+                id: 4,
+                title: "JavaScript ES6+ Features",
+                category: "tech",
+                image: "https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=400&h=250&fit=crop",
+                description: "Explore modern JavaScript features that will make your code more efficient and readable.",
+                date: "2024-03-08",
+                readTime: "10 min read"
+            },
+            {
+                id: 5,
+                title: "Backpacking Through Europe",
+                category: "travel",
+                image: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&h=250&fit=crop",
+                description: "Essential tips and itineraries for an unforgettable backpacking adventure across European countries.",
+                date: "2024-03-05",
+                readTime: "15 min read"
+            },
+            {
+                id: 6,
+                title: "Mastering French Pastries",
+                category: "food",
+                image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=250&fit=crop",
+                description: "Learn the techniques and secrets behind creating perfect French pastries in your own kitchen.",
+                date: "2024-03-03",
+                readTime: "20 min read"
+            },
+            {
+                id: 7,
+                title: "Building REST APIs with Node.js",
+                category: "tech",
+                image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=250&fit=crop",
+                description: "Step-by-step guide to creating robust and scalable REST APIs using Node.js and Express.",
+                date: "2024-03-01",
+                readTime: "14 min read"
+            },
+            {
+                id: 8,
+                title: "Street Food Adventures in Bangkok",
+                category: "food",
+                image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=250&fit=crop",
+                description: "Dive into the vibrant street food scene of Bangkok and discover the most authentic local flavors.",
+                date: "2024-02-28",
+                readTime: "9 min read"
+            },
+            {
+                id: 9,
+                title: "CSS Grid Layout Mastery",
+                category: "tech",
+                image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=250&fit=crop",
+                description: "Master CSS Grid to create complex, responsive layouts with ease and precision.",
+                date: "2024-02-25",
+                readTime: "11 min read"
+            },
+            {
+                id: 10,
+                title: "Mountain Hiking in Switzerland",
+                category: "travel",
+                image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=250&fit=crop",
+                description: "Experience breathtaking mountain trails and alpine adventures in the Swiss countryside.",
+                date: "2024-02-22",
+                readTime: "13 min read"
+            },
+            {
+                id: 11,
+                title: "Mediterranean Cooking Essentials",
+                category: "food",
+                image: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&h=250&fit=crop",
+                description: "Discover the healthy and delicious world of Mediterranean cuisine with these essential recipes.",
+                date: "2024-02-20",
+                readTime: "16 min read"
+            },
+            {
+                id: 12,
+                title: "Machine Learning Basics",
+                category: "tech",
+                image: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=400&h=250&fit=crop",
+                description: "An introduction to machine learning concepts and practical applications for beginners.",
+                date: "2024-02-18",
+                readTime: "18 min read"
+            }
+        ];
+
+        // Pagination and filtering variables
+        let currentPage = 1;
+        let postsPerPage = 6;
+        let filteredPosts = [...blogPosts];
+        let currentCategory = 'all';
+        let searchQuery = '';
+
+        // DOM elements
+        const postsGrid = document.getElementById('postsGrid');
+        const searchInput = document.getElementById('searchInput');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const pagination = document.getElementById('pagination');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const pageNumbers = document.getElementById('pageNumbers');
+        const noResults = document.getElementById('noResults');
+
+        // Initialize the blog
+        function init() {
+            renderPosts();
+            renderPagination();
+            attachEventListeners();
+        }
+
+        // Render posts
+        function renderPosts() {
+            const startIndex = (currentPage - 1) * postsPerPage;
+            const endIndex = startIndex + postsPerPage;
+            const postsToShow = filteredPosts.slice(startIndex, endIndex);
+
+            if (postsToShow.length === 0) {
+                postsGrid.style.display = 'none';
+                pagination.style.display = 'none';
+                noResults.style.display = 'block';
+                return;
+            }
+
+            postsGrid.style.display = 'grid';
+            pagination.style.display = 'flex';
+            noResults.style.display = 'none';
+
+            postsGrid.innerHTML = postsToShow.map(post => `
+                <article class="post-card" data-category="${post.category}">
+                    <div class="post-image">
+                        <img src="${post.image}" alt="${post.title}" loading="lazy">
+                        <div class="category-badge">${post.category}</div>
+                    </div>
+                    <div class="post-content">
+                        <h2 class="post-title">${post.title}</h2>
+                        <p class="post-description">${post.description}</p>
+                        <div class="post-meta">
+                            <span class="post-date">${formatDate(post.date)}</span>
+                            <span class="post-read-time">${post.readTime}</span>
+                        </div>
+                        <button class="read-more-btn">Read More</button>
+                    </div>
+                </article>
+            `).join('');
+
+            // Animate cards
+            const cards = postsGrid.querySelectorAll('.post-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('en-US', options);
+        }
+
+        // Filter posts
+        function filterPosts() {
+            filteredPosts = blogPosts.filter(post => {
+                const matchesCategory = currentCategory === 'all' || post.category === currentCategory;
+                const matchesSearch = searchQuery === '' || 
+                    post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    post.description.toLowerCase().includes(searchQuery.toLowerCase());
+                return matchesCategory && matchesSearch;
+            });
+            currentPage = 1;
+            renderPosts();
+            renderPagination();
+        }
+
+        // Render pagination
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
+            
+            if (totalPages <= 1) {
+                pagination.style.display = 'none';
+                return;
+            }
+            
+            pagination.style.display = 'flex';
+
+            // Update navigation buttons
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === totalPages;
+
+            // Generate page numbers
+            let pagesHTML = '';
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+            if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            if (startPage > 1) {
+                pagesHTML += `<button class="page-btn" data-page="1">1</button>`;
+                if (startPage > 2) {
+                    pagesHTML += `<span class="page-ellipsis">...</span>`;
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                pagesHTML += `<button class="page-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    pagesHTML += `<span class="page-ellipsis">...</span>`;
+                }
+                pagesHTML += `<button class="page-btn" data-page="${totalPages}">${totalPages}</button>`;
+            }
+
+            pageNumbers.innerHTML = pagesHTML;
+        }
+
+        // Event listeners
+        function attachEventListeners() {
+            // Search input
+            searchInput.addEventListener('input', (e) => {
+                searchQuery = e.target.value;
+                filterPosts();
+            });
+
+            // Category filters
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    // Update active filter
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    
+                    currentCategory = e.target.getAttribute('data-category');
+                    filterPosts();
+                });
+            });
+
+            // Pagination
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderPosts();
+                    renderPagination();
+                    scrollToTop();
+                }
+            });
+
+            nextBtn.addEventListener('click', () => {
+                const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderPosts();
+                    renderPagination();
+                    scrollToTop();
+                }
+            });
+
+            // Page number clicks
+            pageNumbers.addEventListener('click', (e) => {
+                if (e.target.classList.contains('page-btn')) {
+                    currentPage = parseInt(e.target.getAttribute('data-page'));
+                    renderPosts();
+                    renderPagination();
+                    scrollToTop();
+                }
+            });
+
+            // Read more buttons
+            postsGrid.addEventListener('click', (e) => {
+                if (e.target.classList.contains('read-more-btn')) {
+                    e.preventDefault();
+                    // Simulate navigation to full post
+                    e.target.textContent = 'Loading...';
+                    setTimeout(() => {
+                        e.target.textContent = 'Read More';
+                        alert('This would navigate to the full blog post!');
+                    }, 1000);
+                }
+            });
+        }
+
+        // Scroll to top
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Initialize the application
+        init();
+    </script>
+</body>
+</html>
